@@ -1,0 +1,322 @@
+<!DOCTYPE html>
+<html lang="kk">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Physics Lab: Manhwa Edition Full</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Bangers&family=Oswald:wght@400;700&display=swap');
+
+        :root {
+            --neon-blue: #00f3ff;
+            --neon-pink: #ff00ff;
+            --neon-yellow: #fefe33;
+            --dark-bg: #050505;
+            --panel-bg: rgba(20, 20, 20, 0.95);
+            --comic-border: 4px solid #fff;
+        }
+
+        body {
+            background-color: var(--dark-bg);
+            color: white;
+            font-family: 'Oswald', sans-serif;
+            margin: 0;
+            background-image: radial-gradient(circle at 50% 50%, #1a1a1a 0%, #050505 100%);
+        }
+
+        .container { max-width: 900px; margin: 0 auto; padding: 20px; }
+
+        .panel {
+            border: var(--comic-border);
+            box-shadow: 10px 10px 0px var(--neon-blue);
+            background: var(--panel-bg);
+            padding: 25px;
+            margin-bottom: 40px;
+            position: relative;
+        }
+
+        h1, h2, h3 { font-family: 'Bangers', cursive; text-transform: uppercase; color: var(--neon-yellow); text-shadow: 3px 3px 0px #000; }
+        .story-mode { background: #1a1a1a; border-left: 8px solid var(--neon-pink); padding: 15px; margin: 15px 0; font-style: italic; }
+        .analysis-box { background: rgba(0, 243, 255, 0.1); border: 2px solid var(--neon-blue); padding: 15px; margin: 15px 0; display: none; }
+        .conclusion { background: rgba(254, 254, 51, 0.1); border: 2px solid var(--neon-yellow); padding: 15px; margin-top: 10px; color: var(--neon-yellow); font-weight: bold; }
+        
+        .hidden { display: none !important; }
+        .lab-box { border: 3px dashed #444; padding: 30px; margin: 20px 0; text-align: center; background: #000; }
+        
+        button {
+            background: var(--neon-pink); color: white; border: 3px solid black; padding: 12px 25px;
+            font-family: 'Bangers', cursive; font-size: 1.3rem; cursor: pointer; box-shadow: 4px 4px 0px white; margin: 5px;
+        }
+        button:hover { transform: translate(-2px, -2px); box-shadow: 6px 6px 0px var(--neon-blue); }
+
+        .bulb { width: 70px; height: 70px; background: #333; border-radius: 50%; margin: 10px auto; border: 3px solid #555; transition: 0.3s; }
+        .bulb.active { background: var(--neon-yellow); box-shadow: 0 0 40px var(--neon-yellow); }
+
+        input[type="range"] { width: 100%; accent-color: var(--neon-blue); }
+        textarea { width: 95%; background: #222; color: #fff; border: 2px solid var(--neon-pink); padding: 10px; margin: 10px 0; }
+
+        .progress-bar { height: 15px; background: #222; border: 2px solid #fff; margin-bottom: 20px; }
+        #progress-fill { height: 100%; width: 0%; background: var(--neon-blue); transition: 0.5s; }
+
+        /* Mini Game Styles */
+        .drop-zone { width: 120px; height: 120px; border: 2px dashed #fff; display: inline-flex; align-items: center; justify-content: center; margin: 10px; vertical-align: middle; background: #111; }
+        .drag-item { width: 100px; padding: 10px; background: var(--neon-blue); color: #000; cursor: move; margin: 5px; display: inline-block; font-weight: bold; text-align: center; border: 2px solid #000; }
+
+        .quiz-option { display: block; background: #333; padding: 10px; margin: 5px 0; cursor: pointer; border: 1px solid #555; }
+        .quiz-option:hover { background: #444; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <div class="progress-bar"><div id="progress-fill"></div></div>
+
+    <div id="screen-start" class="panel">
+        <h1>⚡ Physics Lab: Энергия Құпиялары</h1>
+        <p>Манхва стиліндегі интерактивті зертханаға қош келдің!</p>
+        <input type="text" id="student-name" placeholder="Батырдың есімін енгіз..." style="padding:10px; width:80%;">
+        <br><br>
+        <button onclick="startApp()">Экспериментті бастау</button>
+    </div>
+
+    <div id="screen-task1" class="hidden panel">
+        <h2>⚡ 1-тапсырма. Тізбектің тұйықталуы</h2>
+        <div class="story-mode">
+            <strong>🎯 Жағдаят:</strong> Мектеп зертханасында оқушылар шамды жағу үшін тізбек құрастырады. Бірақ шам жанбайды.
+            <br>👉 Мұғалім: «Тізбекте тек бір ғана ақау бар.»
+        </div>
+        <h3>1-қадам. Болжам жасау</h3>
+        <textarea id="t1-hypo" placeholder="Болжамыңды осында жаз..."></textarea>
+        <h3>2-қадам. Тексеру</h3>
+        <div class="lab-box">
+            <div id="bulb1" class="bulb"></div>
+            <button onclick="checkPart('батарея')">Батарея</button>
+            <button onclick="checkPart('шам')">Шам</button>
+            <button onclick="checkPart('сым')">Сым (Контакт)</button>
+        </div>
+        <div id="t1-analysis" class="analysis-box">
+            <p><strong>🧠 Терең талдау:</strong> Тек «тұйық» болу жеткіліксіз. Контакт кедергісі өте маңызды.</p>
+            <div class="conclusion">✅ Қорытынды: Тізбек тұйық, контакт сенімді болуы керек.</div>
+            <button onclick="nextTask(2)">2-тапсырмаға өту</button>
+        </div>
+    </div>
+
+    <div id="screen-task2" class="hidden panel">
+        <h2>⚡ 2-тапсырма. Ом заңы</h2>
+        <div class="story-mode">График неге түзу емес? Тексеріп көр.</div>
+        <div class="lab-box">
+            <input type="range" id="u-slider" min="0" max="100" value="0" oninput="updateOhm()">
+            <p>Кернеу: <span id="u-val">0</span> V | Ток: <span id="i-val">0</span> A</p>
+            <canvas id="ohmChart" style="background:#fff;"></canvas>
+            <button onclick="completeTask2()">Графикті талдау</button>
+        </div>
+        <div id="t2-analysis" class="analysis-box">
+            <p><strong>🧠 Терең талдау:</strong> Температура артқанда кедергі де артады.</p>
+            <div class="conclusion">✅ Қорытынды: Ом заңы тұрақты температурада ғана сызықты.</div>
+            <button onclick="nextTask(3)">3-тапсырмаға өту</button>
+        </div>
+    </div>
+
+    <div id="screen-task3" class="hidden panel">
+        <h2>⚡ 3-тапсырма. Кедергі факторлары</h2>
+        <div class="lab-box">
+            <label>Ұзындығы (L):</label> <input type="range" id="wire-l" min="1" max="10" value="5" oninput="updateRes()">
+            <label>Қалыңдығы (S):</label> <input type="range" id="wire-s" min="1" max="10" value="5" oninput="updateRes()">
+            <div id="bulb3" class="bulb"></div>
+            <p>Кедергі: <span id="res-val">1.00</span> Ом</p>
+            <button onclick="completeTask3()">Талдау</button>
+        </div>
+        <div id="t3-analysis" class="analysis-box">
+            <div class="conclusion">✅ Қорытынды: R ұзындыққа тура, қимаға кері пропорционал.</div>
+            <button onclick="nextTask(4)">4-тапсырмаға өту</button>
+        </div>
+    </div>
+
+    <div id="screen-task4" class="hidden panel">
+        <h2>⚡ 4-тапсырма. Параллель жалғау</h2>
+        <div class="lab-box">
+            <div style="display:flex; justify-content: space-around;">
+                <div><div id="pbulb1" class="bulb active"></div><button onclick="burnBulb(1)">Күйдіру</button></div>
+                <div><div id="pbulb2" class="bulb active"></div><button onclick="burnBulb(2)">Күйдіру</button></div>
+            </div>
+            <button onclick="completeTask4()">Талдау</button>
+        </div>
+        <div id="t4-analysis" class="analysis-box">
+            <div class="conclusion">✅ Қорытынды: Параллель жалғау үй жүйесі үшін қауіпсіз.</div>
+            <button onclick="showMiniGame()">Мини-ойынды бастау</button>
+        </div>
+    </div>
+
+    <div id="screen-game" class="hidden panel">
+        <h2>🎮 МИНИ-ОЙЫН: Тізбекті құрастыр</h2>
+        <p>Элементтерді ұяшықтарға ретімен сүйреп апарыңыз:</p>
+        <div id="game-timer" style="font-size: 1.5rem; color: var(--neon-pink);">Уақыт: 30с</div>
+        <div class="lab-box" id="game-area">
+            <div class="drop-zone" ondrop="drop(event)" ondragover="allowDrop(event)" id="zone1">Ұяшық 1</div>
+            <div class="drop-zone" ondrop="drop(event)" ondragover="allowDrop(event)" id="zone2">Ұяшық 2</div>
+            <div class="drop-zone" ondrop="drop(event)" ondragover="allowDrop(event)" id="zone3">Ұяшық 3</div>
+            <br><br>
+            <div id="drag-items">
+                <div class="drag-item" draggable="true" ondragstart="drag(event)" id="battery">БАТАРЕЯ</div>
+                <div class="drag-item" draggable="true" ondragstart="drag(event)" id="wire">СЫМ</div>
+                <div class="drag-item" draggable="true" ondragstart="drag(event)" id="bulb">ШАМ</div>
+            </div>
+        </div>
+        <button onclick="checkGame()">Тексеру</button>
+    </div>
+
+    <div id="screen-test" class="hidden panel">
+        <h2>🧠 ҚОРЫТЫНДЫ ТЕСТ (10 Сұрақ)</h2>
+        <div id="quiz-container"></div>
+        <button onclick="checkQuiz()">Нәтижені жіберу</button>
+    </div>
+
+    <div id="screen-reflection" class="hidden panel">
+        <h2>🪞 РЕФЛЕКСИЯ</h2>
+        <textarea id="reflect-text" placeholder="Сабақ қалай өтті?"></textarea>
+        <div id="emoji-box" style="font-size: 2.5rem; cursor: pointer; text-align: center;">
+            <span onclick="selectEmoji('😊')">😊</span>
+            <span onclick="selectEmoji('😐')">😐</span>
+            <span onclick="selectEmoji('😕')">😕</span>
+        </div>
+        <p id="selected-emoji" style="text-align: center; color: var(--neon-yellow);"></p>
+        <button onclick="finishAll()">Соңғы нәтиже</button>
+    </div>
+
+    <div id="screen-final" class="hidden panel">
+        <h2>🏆 БАҒАЛАУ ПАНЕЛІ</h2>
+        <div id="final-stats" style="font-size: 1.8rem; text-align: center;"></div>
+        <button onclick="location.reload()">Қайталау</button>
+    </div>
+</div>
+
+<script>
+    let studentName = "";
+    let score = 0;
+    let chart;
+    let timer;
+    let timeLeft = 30;
+
+    function startApp() {
+        studentName = document.getElementById('student-name').value || "Оқушы";
+        nextTask(1);
+    }
+
+    function updateProgress(p) { document.getElementById('progress-fill').style.width = p + "%"; }
+
+    function nextTask(n) {
+        document.querySelectorAll('.panel').forEach(p => p.classList.add('hidden'));
+        const target = document.getElementById('screen-task' + n) || document.getElementById('screen-' + n);
+        if(target) target.classList.remove('hidden');
+        updateProgress(n * 15);
+    }
+
+    // Task Functions
+    function checkPart(part) {
+        if(part === 'сым') {
+            alert("Дұрыс! Контакт үзілген екен.");
+            document.getElementById('bulb1').classList.add('active');
+            document.getElementById('t1-analysis').style.display = "block";
+            score += 10;
+        } else alert("Бұл бөлік бүтін.");
+    }
+
+    function updateOhm() {
+        let u = parseFloat(document.getElementById('u-slider').value);
+        let r = 10 + (u * 0.1);
+        let i = (u / r).toFixed(2);
+        document.getElementById('u-val').innerText = u;
+        document.getElementById('i-val').innerText = i;
+        if(!chart) {
+            const ctx = document.getElementById('ohmChart').getContext('2d');
+            chart = new Chart(ctx, { type: 'line', data: { labels: [], datasets: [{ label: 'I(U)', data: [], borderColor: '#ff00ff' }] } });
+        }
+        chart.data.labels.push(u); chart.data.datasets[0].data.push(i); chart.update();
+    }
+    function completeTask2() { document.getElementById('t2-analysis').style.display = "block"; score += 10; }
+
+    function updateRes() {
+        let l = document.getElementById('wire-l').value, s = document.getElementById('wire-s').value;
+        let r = (l / s).toFixed(2);
+        document.getElementById('res-val').innerText = r;
+        document.getElementById('bulb3').style.opacity = (1 / r);
+        score += 1;
+    }
+    function completeTask3() { document.getElementById('t3-analysis').style.display = "block"; score += 9; }
+    function burnBulb(n) { document.getElementById('pbulb'+n).classList.remove('active'); }
+    function completeTask4() { document.getElementById('t4-analysis').style.display = "block"; score += 10; }
+
+    // MINI GAME LOGIC
+    function showMiniGame() {
+        nextTask('game');
+        timer = setInterval(() => {
+            timeLeft--;
+            document.getElementById('game-timer').innerText = "Уақыт: " + timeLeft + "с";
+            if(timeLeft <= 0) { clearInterval(timer); alert("Уақыт бітті! Қайта көріңіз."); location.reload(); }
+        }, 1000);
+    }
+
+    function allowDrop(ev) { ev.preventDefault(); }
+    function drag(ev) { ev.dataTransfer.setData("text", ev.target.id); }
+    function drop(ev) {
+        ev.preventDefault();
+        let data = ev.dataTransfer.getData("text");
+        ev.target.appendChild(document.getElementById(data));
+    }
+
+    function checkGame() {
+        let z1 = document.getElementById('zone1').children[0]?.id;
+        let z2 = document.getElementById('zone2').children[0]?.id;
+        let z3 = document.getElementById('zone3').children[0]?.id;
+        if(z1 === 'battery' && z2 === 'wire' && z3 === 'bulb') {
+            clearInterval(timer);
+            alert("Керемет! Тізбек жұмыс істеп тұр.");
+            score += 20;
+            showQuiz();
+        } else alert("Реттілікті тексеріңіз (Батарея -> Сым -> Шам)");
+    }
+
+    // QUIZ LOGIC
+    const questions = [
+        { q: "Ток күшінің өлшем бірлігі?", a: "Ампер", o: ["Вольт", "Ампер", "Ом"] },
+        { q: "Кедергі ұзындыққа тура пропорционал ма?", a: "Иә", o: ["Иә", "Жоқ"] },
+        { q: "Ом заңының формуласы?", a: "I=U/R", o: ["I=U*R", "I=U/R", "R=U*I"] },
+        { q: "Металдардағы ток тасымалдаушылар?", a: "Электрондар", o: ["Иондар", "Электрондар", "Протондар"] },
+        { q: "Қысқа тұйықталу кезінде кедергі не болады?", a: "Азаяды", o: ["Азаяды", "Өседі"] },
+        { q: "Параллель жалғауда кернеу бірдей ме?", a: "Иә", o: ["Иә", "Жоқ"] },
+        { q: "Ток көзіне мысал?", a: "Батарея", o: ["Батарея", "Резистор"] },
+        { q: "Амперметр қалай жалғанады?", a: "Тізбектей", o: ["Тізбектей", "Параллель"] },
+        { q: "Вольтметр қалай жалғанады?", a: "Параллель", o: ["Тізбектей", "Параллель"] },
+        { q: "Диэлектрикке мысал?", a: "Резеңке", o: ["Темір", "Резеңке"] }
+    ];
+
+    function showQuiz() {
+        nextTask('test');
+        let h = "";
+        questions.forEach((q, i) => {
+            h += <div style='margin-bottom:15px'><b>${i+1}. ${q.q}</b><br>;
+            q.o.forEach(opt => h += <label class='quiz-option'><input type='radio' name='q${i}' value='${opt}'> ${opt}</label>);
+            h += </div>;
+        });
+        document.getElementById('quiz-container').innerHTML = h;
+    }
+
+    function checkQuiz() {
+        questions.forEach((q, i) => {
+            let s = document.querySelector(input[name="q${i}"]:checked);
+            if(s?.value === q.a) score += 4;
+        });
+        nextTask('reflection');
+    }
+
+    function selectEmoji(e) { document.getElementById('selected-emoji').innerText = "Таңдалған көңіл-күй: " + e; }
+    
+    function finishAll() {
+        nextTask('final');
+        let g = score >= 85 ? "5 (Үздік)" : (score >= 65 ? "4 (Жақсы)" : "3 (Талпын)");
+        document.getElementById('final-stats').innerHTML = ${studentName}, нәтижең: ${score}% <br> Баға: ${g};
+    }
+</script>
+</body>
+</html>
